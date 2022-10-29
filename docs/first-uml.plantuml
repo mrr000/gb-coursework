@@ -1,0 +1,128 @@
+@startuml Entity
+
+package Legacy {
+
+    object Notification
+    object Authentication
+    object ClientDetails
+    object OrderDetails
+    object UserDetails
+
+}
+
+package App {
+
+    interface UserDetailsInterface
+    interface NotificationInterface
+    interface AuthenticationInterface
+    interface ClientDetailsInterface
+    interface OrderDetailsInterface
+
+    object User {
+        UserDetails
+    }
+
+    object Client {
+        ClientDetails
+        Order[]
+        User
+        ...
+    }
+
+    object Order {
+        Client
+        OrderDetails
+        User
+        Service
+    }
+
+    object Service {
+    }
+
+    object Request {
+        message
+        Client
+    }
+
+    object Dashboard {
+        name
+        User
+        taskFilter[]
+    }
+
+    object Task {
+        Request
+        User
+        status
+        history
+        ...
+    }
+
+}
+
+Order -- Service
+Order -- Client
+Request -- Client
+Request -- Task
+User -- Task
+User -- Client
+User -- Dashboard
+User -- UserDetailsInterface
+Client -- ClientDetailsInterface
+Order -- OrderDetailsInterface
+
+
+Notification -- NotificationInterface
+Authentication -- AuthenticationInterface
+UserDetails -- UserDetailsInterface
+ClientDetails -- ClientDetailsInterface
+OrderDetails -- OrderDetailsInterface
+
+@enduml
+
+@startuml SequenceGlobal
+
+actor       Client as Client
+actor       Manager1 as User
+actor       Manager2 as User2
+
+Client -> User : Устное или \nписьменное обращение
+User -> App : Ввод данных обращения
+App <- Legacy : Список клиентов
+App <- Legacy : Список заказов
+
+User -> App : : Создание обращеня
+App -> App : Создание задач на основании обращения
+App -> Legacy: Создание оповещений о новых задачах
+User2 <- Legacy: Оповещений о задачах
+User2 -> App: Просмотр доски задач
+User2 -> User2: Обработка и выполнение задачи
+User2 -> App: Смена статуса задачи, \nзакрытие
+App -> Legacy: Создание оповещений о закрытии задач
+Client <- Legacy: Оповещение о решении задачи
+
+@enduml
+
+
+@startuml SequenceApp
+
+actor       Client as Client
+actor       Manager1 as User
+actor       Manager2 as User2
+
+Client -> User : Устное или \nписьменное обращение
+User -> App : Ввод данных обращения
+App <- Legacy : Список клиентов
+App <- Legacy : Список заказов
+
+User -> App : : Создание обращеня
+App -> App : Создание задач на основании обращения
+App -> Legacy: Создание оповещений о новых задачах
+User2 <- Legacy: Оповещений о задачах
+User2 -> App: Просмотр доски задач
+User2 -> User2: Обработка и выполнение задачи
+User2 -> App: Смена статуса задачи, \nзакрытие
+App -> Legacy: Создание оповещений о закрытии задач
+Client <- Legacy: Оповещение о решении задачи
+
+@enduml
