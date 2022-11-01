@@ -1,63 +1,87 @@
 @startuml Entity
+allowmixing
+left to right direction
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
 
-package Legacy {
-
-    object Notification
-    object Authentication
-    object ClientDetails
-    object OrderDetails
-    object UserDetails
-
-}
-
-package App {
-
-    interface UserDetailsInterface
-    interface NotificationInterface
-    interface AuthenticationInterface
-    interface ClientDetailsInterface
-    interface OrderDetailsInterface
+component App {
+    port UserDetailsInterface
+    port NotificationInterface
+    port AuthenticationInterface
+    port ClientDetailsInterface
+    port OrderDetailsInterface
 
     object User {
-        UserDetails
+        name: String
+        link: UserDetails
+        ...
     }
 
     object Client {
-        ClientDetails
-        Order[]
-        User
+        link: ClientDetails
+        orders: Order[]
+        requests: Request[]
+        userCreated: User
         ...
     }
 
     object Order {
-        Client
-        OrderDetails
-        User
-        Service
+        client: Client
+        link: OrderDetails
+        userCreated: User
+        services: Service[]
     }
 
     object Service {
-    }
-
-    object Request {
-        message
-        Client
-    }
-
-    object Dashboard {
-        name
-        User
-        taskFilter[]
-    }
-
-    object Task {
-        Request
-        User
-        status
-        history
         ...
     }
 
+    object Request {
+        client: Client
+        message: String
+        createdAt: DateTime
+        updatedAt: DateTime
+        userCreated: User
+        userResponsible: User
+        tasks: Task[]
+    }
+
+    object Dashboard {
+        name: String
+        user: User
+        ...
+    }
+
+    object Task {
+        request: Request
+        userCreated: User
+        userResponsible: User
+        userSupervisor: User
+        status: TaskStatus
+        comments: TaskComment[]
+        history: TaskHistory[]
+        ...
+    }
+
+    object TaskStatus {
+        ...
+    }
+
+    object TaskHistory {
+        ...
+    }
+
+    object TaskComment {
+        ...
+    }
+}
+
+component Legacy {
+    object Notification
+    object Authentication
+    object UserDetails
+    object ClientDetails
+    object OrderDetails
 }
 
 Order -- Service
@@ -67,16 +91,20 @@ Request -- Task
 User -- Task
 User -- Client
 User -- Dashboard
-User -- UserDetailsInterface
-Client -- ClientDetailsInterface
-Order -- OrderDetailsInterface
+TaskStatus -- Task
+TaskHistory -- Task
+TaskComment -- Task
 
 
-Notification -- NotificationInterface
-Authentication -- AuthenticationInterface
-UserDetails -- UserDetailsInterface
-ClientDetails -- ClientDetailsInterface
-OrderDetails -- OrderDetailsInterface
+OrderDetailsInterface --- Order
+UserDetailsInterface --- User
+ClientDetailsInterface --- Client
+
+Legacy <-- NotificationInterface
+Legacy <--> AuthenticationInterface
+Legacy --> UserDetailsInterface
+Legacy --> ClientDetailsInterface
+Legacy --> OrderDetailsInterface
 
 @enduml
 
