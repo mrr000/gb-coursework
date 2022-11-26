@@ -102,19 +102,19 @@ end note
 
 'left to right direction
 top to bottom direction
-API-->AdminHandler
-  AdminHandler-->Admin
-  AdminHandler-->Cluster
-  AdminHandler-->Users
-  '  AdminHandler-->Users
-API->UsersHandler
-UsersHandler-->Users
+API-[#green]->AdminHandler
+API-[#green]->UsersHandler
 API-[#green]->ClientsHandler
 API-[#green]->OrdersHandler
 API-[#green]->OffersHandler
 API-[#green]->TicketsHandler
 
 'left to right direction
+AdminHandler-->Admin
+AdminHandler-->Cluster
+AdminHandler-->Users
+
+UsersHandler-->Users
 ClientsHandler-->Clients
 OrdersHandler-->Orders
 OffersHandler-->Offers
