@@ -31,8 +31,9 @@ component {
 title ""
 
 title
-<size:30>Диаграмма контейнеров??? компонентов?</size>
+<size:30>Диаграмма компонентов</size>
 end title
+' Возможно это диаграмма контейнеров )))
 
 'interface "WEB\nuser interface" as I_WEB
 'interface "WEB\nmanager interface" as I_WEB_MANAGER
