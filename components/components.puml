@@ -1,0 +1,191 @@
+@startuml
+'Диаграмма контейнеров??? компонентов?
+'https://plantuml.com/ru/component-diagram
+'https://plantuml.com/ru/deployment-diagram тут нужные стрелки
+'https://pdf.plantuml.net/PlantUML_Language_Reference_Guide_ru.pdf
+'https://crashedmind.github.io/PlantUMLHitchhikersGuide/
+'https://plugins.jetbrains.com/plugin/7017-plantuml-integration
+'https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml
+
+!theme vibrant
+'skinparam monochrome true
+
+!define SPRITESURL https://raw.githubusercontent.com/plantuml-stdlib/gilbarbara-plantuml-sprites/v1.0/sprites
+!includeurl SPRITESURL/aws.puml
+!includeurl SPRITESURL/kafka.puml
+'!includeurl SPRITESURL/google-cloud.puml
+'!includeurl SPRITESURL/100tb.puml
+'!includeurl SPRITESURL/cloud9.puml
+
+'rectangle "<$flask>\nwebapp" as webapp
+'queue "<$kafka>" as kafka
+'rectangle "<$kotlin>\ndaemon" as daemon
+'database "<$cassandra>" as cassandra
+
+<style>
+component {
+  HorizontalAlignment center
+}
+</style>
+
+title ""
+
+title
+<size:30>Диаграмма компонентов</size>
+end title
+' Возможно это диаграмма контейнеров )))
+
+'interface "WEB\nuser interface" as I_WEB
+'interface "WEB\nmanager interface" as I_WEB_MANAGER
+'interface "WEB\nClient interface" as I_WEB_Client ???
+
+component API [
+**API gateway**
+service
+Проверяет авторизацию,
+раздает requestID,
+осуществляет роутинг
+]
+
+[**FRONTEND**\nservice] as frontend
+'note left of [frontend]
+'Осуществляет раздачу SPA
+'менеджерам, клиентам.
+'end note
+
+'I_WEB --- frontend
+'I_WEB_MANAGER --- frontend
+
+frontend -down- API
+
+rectangle "Message broker\nService\n <$kafka>" as MessageBroker {
+  rectangle " " as ddd {
+    [Users handler] as UsersHandler
+    [Clients handler] as ClientsHandler
+    [Admin handler] as AdminHandler
+    [Orders handler] as OrdersHandler
+    [Offers handler] as OffersHandler
+    [Tickets handler] as TicketsHandler
+  }
+
+  [Admin service] as Admin
+  [Users service] as Users
+  [Clients service] as Clients
+  '[Requests service] as Requests это middleware
+  'как и проверка валидности JWT
+  [Orders service] as Orders
+  [Offers service] as Offers
+  [Clusters service] as Cluster
+  [Tickets service] as Tickets
+  [Upload service] as S3
+  [Contracts service] as Contracts
+  ' S3 должен ссылаться на внешний сервис осуществляющий хранение
+
+  ' У каждого сервиса работающего с БД должен быть интерфейс и реализация репозитория
+note right of MessageBroker
+  Сервисы и обработчики могут
+  раздавать сообщения которые
+  перехватываются и обрабатываются
+  Notification service
+end note
+
+'archimate "Сервисы и обработчики могут\nраздавать сообщения которые\n       перехватываются и обрабатываются             Notification service" #lightgreen
+
+'archimate #Technology "VPN Server" as vpnServerA <<technology-device>>
+'rectangle GO #lightgreen
+}
+
+note top of MessageBroker
+  Сервисы подписаны на сообщения
+  от CDC service и вносят изменения
+  напрямую в обход бизнес логики
+end note
+
+'left to right direction
+top to bottom direction
+API-[#green]->AdminHandler
+API-[#green]->UsersHandler
+API-[#green]->ClientsHandler
+API-[#green]->OrdersHandler
+API-[#green]->OffersHandler
+API-[#green]->TicketsHandler
+
+'left to right direction
+AdminHandler-->Admin
+AdminHandler-->Cluster
+AdminHandler-->Users
+
+UsersHandler-->Users
+ClientsHandler-->Clients
+OrdersHandler-->Orders
+OffersHandler-->Offers
+TicketsHandler-->Tickets
+
+Clients -> Orders
+Clients --> Offers
+
+Offers->Contracts
+Clients->Contracts
+
+'Orders --> S3
+'Offers --> S3
+Contracts --> S3
+Clients --> S3
+Tickets --> S3
+
+
+cloud "<$aws>" as CloudS3
+S3 --- CloudS3
+
+Orders --> Tickets
+Orders --> Cluster
+Tickets --> Cluster
+
+rectangle " " {
+  [CDC service] as CDC
+
+  database "**ODBC**" as replicaDB {
+    label "Legacy replica"
+  }
+
+  replicaDB -up-> CDC
+
+  note right of [CDC]
+  Рассылает через брокер
+  сообщений информацию
+  об изменениях в легаси БД
+  end note
+}
+
+component "Notification service" as Notify {
+  [SMS sender] as SMS
+  [Email sender] as Email
+  [Telegram sender] as Telegram
+  [Phone voice mail] as Phone
+}
+'cloud "Outside notification\nservices" as CloudSMS
+
+'cloud CloudSMS #pink;line:red;line.bold;text:red [
+cloud CloudSMS #line:red;line.bold; [
+Notification
+   services
+]
+
+Notify --- CloudSMS
+
+MessageBroker ..> Notify
+
+CDC ..> MessageBroker
+
+legend top right
+ **Внешние сервисы**
+ ELK
+ Message broker
+ Tracers
+ CDC Service
+ S3 - облачные хранилища
+ Сервис сбора данных для отчетов
+ Сервис отчетов
+end legend
+
+@enduml
