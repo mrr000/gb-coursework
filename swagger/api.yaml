@@ -1,0 +1,398 @@
+openapi: 3.0.0
+info:
+  title: GB result project API
+  version: 0.0.1
+
+servers:
+  - url: /api/v1/
+
+tags:
+  - name: Authorization
+  - name: Clients
+    description: ""
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  headers:
+    RequestSuccess:
+      schema:
+        type: string
+      description: "if the application has successfully processed the request, it returns success. If an error occurs during the processing of the request, it returns fail."
+
+  responses:
+    minimalResponse:
+      description: "OK"
+
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    Conflict:
+      description: Resource Already Exist
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    InternalError:
+      description: Internal Server Error
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error_code:
+          type: string
+        message:
+          type: string
+      required:
+        - error_code
+        - message
+
+    Clients:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        accountNum:
+          description: "Номер лицевого счета"
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        active:
+          type: boolean
+        userType:
+          type: number
+
+    Token:
+      type: object
+      properties:
+        token:
+          type: string
+        refresh_token:
+          type: string
+
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    CreateUser:
+      type: object
+      properties:
+        name:
+          type: string
+        account:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+
+    CreateClient:
+      type: object
+      properties:
+        last_name:
+          type: string
+        first_name:
+          type: string
+        middle_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        user_type:
+          type: number
+          description: Физ/Юр лицо
+
+    UpdateClient:
+      type: object
+      properties:
+        name:
+          type: string
+        account:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+
+paths:
+  /auth:
+    post:
+      summary: "Авторизация по имени и паролю, возвращает JWT access and refresh tokens"
+      tags:
+        - Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      description: "Авторизация пользователя, получение токена доступа к методам API"
+      responses:
+        '200':
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '500':
+          $ref: "#/components/responses/InternalError"
+    put:
+      summary: "Обновление access toker через refresh token"
+      tags:
+        - Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/Token"
+                - required:
+                    - refresh_token
+      description: "Авторизация пользователя, обмен refresh_token на access_token для доступа к методам API"
+      responses:
+        '201':
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '500':
+          $ref: "#/components/responses/InternalError"
+  /signup:
+    post:
+      summary: "create new user"
+      tags:
+        - Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/CreateUser"
+      description: "Авторизация пользователя, получение токена доступа к методам API"
+      responses:
+        '201':
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '418':
+          $ref: "#/components/responses/ImaTeapot"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+  /clients/find:
+    get:
+      tags:
+        - Clients
+      summary: Поиск клиента по критериям
+      operationId: getClientsByParams
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Страница
+          required: true
+          explode: true
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Выводить по
+          required: true
+          explode: true
+          schema:
+            type: integer
+            default: 10
+        - name: phone
+          in: query
+          description: Номер телефона
+          required: true
+          explode: true
+          schema:
+            type: string
+        - name: address
+          in: query
+          description: Адрес
+          required: false
+          explode: true
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: ФИО
+          required: false
+          explode: true
+          schema:
+            type: string
+        - name: account
+          in: query
+          description: Номер лицевого счета
+          required: false
+          explode: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Clients"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+  /clients/{id}:
+    get:
+      tags:
+        - Clients
+      summary: Получить клиента по ID
+      operationId: getClientByID
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Clients"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+    patch:
+      tags:
+        - Clients
+      summary: ""
+      operationId: updateClient
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/UpdateClient"
+      responses:
+        '200':
+          description: OK
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+  /clients:
+    get:
+      summary: "Список клиентов"
+      tags:
+        - Clients
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Страница
+          required: true
+          explode: true
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Выводить по
+          required: true
+          explode: true
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Clients"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+    post:
+      summary: "Создать клиента"
+      tags:
+        - Clients
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateClient"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Clients"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '409':
+          $ref: "#/components/responses/Conflict"
+        '500':
+          $ref: "#/components/responses/InternalError"
