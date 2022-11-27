@@ -56,7 +56,7 @@ service
 'I_WEB --- frontend
 'I_WEB_MANAGER --- frontend
 
-frontend -down- API
+frontend .down. API
 
 rectangle "Message broker\nService\n <$kafka>" as MessageBroker {
   rectangle " " as ddd {
