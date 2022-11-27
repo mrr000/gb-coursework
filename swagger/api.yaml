@@ -82,7 +82,7 @@ components:
           type: string
         refresh_token:
           type: string
-#--------------------------------------------
+    #--------------------------------------------
     User:
       type: object
       properties:
@@ -102,7 +102,7 @@ components:
           type: string
         phone:
           type: string
-#--------------------------------------------
+    #--------------------------------------------
     Clients:
       type: object
       properties:
@@ -293,73 +293,6 @@ paths:
         '500':
           $ref: "#/components/responses/InternalError"
 
-  /clients/find:
-    get:
-      tags:
-        - Clients
-      summary: Поиск клиента по критериям
-      operationId: getClientsByParams
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: page
-          in: query
-          description: Страница
-          required: true
-          explode: true
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          description: Выводить по
-          required: true
-          explode: true
-          schema:
-            type: integer
-            default: 10
-        - name: phone
-          in: query
-          description: Номер телефона
-          required: true
-          explode: true
-          schema:
-            type: string
-        - name: address
-          in: query
-          description: Адрес
-          required: false
-          explode: true
-          schema:
-            type: string
-        - name: name
-          in: query
-          description: ФИО
-          required: false
-          explode: true
-          schema:
-            type: string
-        - name: account
-          in: query
-          description: Номер лицевого счета
-          required: false
-          explode: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Clients"
-        '404':
-          $ref: "#/components/responses/NotFound"
-        '500':
-          $ref: "#/components/responses/InternalError"
-
   /clients/{id}:
     parameters:
       - name: id
@@ -418,7 +351,7 @@ paths:
         - name: page
           in: query
           description: Страница
-          required: true
+          required: false
           explode: true
           schema:
             type: integer
@@ -426,11 +359,39 @@ paths:
         - name: limit
           in: query
           description: Выводить по
-          required: true
+          required: false
           explode: true
           schema:
             type: integer
             default: 10
+        - name: phone
+          in: query
+          description: Номер телефона
+          required: true
+          explode: true
+          schema:
+            type: string
+        - name: address
+          in: query
+          description: Адрес
+          required: false
+          explode: true
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: ФИО
+          required: false
+          explode: true
+          schema:
+            type: string
+        - name: account
+          in: query
+          description: Номер лицевого счета
+          required: false
+          explode: true
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -548,6 +509,8 @@ paths:
 #  /offers/{id}
 #  /tickets/
 #  /tickets/{id}
+#  /tickets/forDashboard - тут не нужны все тикеты из беклога например и завершенные... подумать
+#  /tickets/my - только текущего юзера
 #  /services - список услуг
 #  /users/roles
 # upload вынести в handlers?
