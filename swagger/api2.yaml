@@ -444,7 +444,7 @@ paths:
         - bearerAuth: []
       parameters:
         - { in: query, name: page, schema: { type: integer } }
-        - { in: query, name: limit, schema: { type: integer } }
+        - { in: query, name: Per_page, schema: { type: integer } }
         - {name: manager_id, in: query, description: Идентификатор менеджера, required: false, explode: true, schema: { type: string }}
         - {name: created_at, in: query, description: Дата создания, required: false, explode: true, schema: { type: string }}
         - {name: closed_at, in: query, description: Дата закрытия, required: false, explode: true, schema: { type: string }}
