@@ -13,14 +13,6 @@
 !define SPRITESURL https://raw.githubusercontent.com/plantuml-stdlib/gilbarbara-plantuml-sprites/v1.0/sprites
 !includeurl SPRITESURL/aws.puml
 !includeurl SPRITESURL/kafka.puml
-'!includeurl SPRITESURL/google-cloud.puml
-'!includeurl SPRITESURL/100tb.puml
-'!includeurl SPRITESURL/cloud9.puml
-
-'rectangle "<$flask>\nwebapp" as webapp
-'queue "<$kafka>" as kafka
-'rectangle "<$kotlin>\ndaemon" as daemon
-'database "<$cassandra>" as cassandra
 
 <style>
 component {
@@ -59,40 +51,33 @@ service
 frontend .down. API
 
 rectangle "Message broker\nService\n <$kafka>" as MessageBroker {
-  rectangle " " as ddd {
+  rectangle " " as ddd{
+    [Requests handler] as RequestsHandler
     [Users handler] as UsersHandler
     [Clients handler] as ClientsHandler
-    [Admin handler] as AdminHandler
     [Orders handler] as OrdersHandler
     [Offers handler] as OffersHandler
-    [Tickets handler] as TicketsHandler
+    [Tasks handler] as TasksHandler
   }
 
-  [Admin service] as Admin
+  [Requests service] as Request
   [Users service] as Users
   [Clients service] as Clients
-  '[Requests service] as Requests это middleware
-  'как и проверка валидности JWT
   [Orders service] as Orders
   [Offers service] as Offers
   [Clusters service] as Cluster
-  [Tickets service] as Tickets
+  [Tasks service] as Tasks
   [Upload service] as S3
   [Contracts service] as Contracts
   ' S3 должен ссылаться на внешний сервис осуществляющий хранение
-
   ' У каждого сервиса работающего с БД должен быть интерфейс и реализация репозитория
-note right of MessageBroker
-  Сервисы и обработчики могут
-  раздавать сообщения которые
-  перехватываются и обрабатываются
-  Notification service
-end note
 
-'archimate "Сервисы и обработчики могут\nраздавать сообщения которые\n       перехватываются и обрабатываются             Notification service" #lightgreen
-
-'archimate #Technology "VPN Server" as vpnServerA <<technology-device>>
-'rectangle GO #lightgreen
+  note right of MessageBroker
+    Сервисы и обработчики могут
+    раздавать сообщения которые
+    перехватываются и обрабатываются
+    Notification service
+  end note
 }
 
 note top of MessageBroker
@@ -103,43 +88,36 @@ end note
 
 'left to right direction
 top to bottom direction
-API-[#green]->AdminHandler
+API-[#green]->RequestsHandler
 API-[#green]->UsersHandler
 API-[#green]->ClientsHandler
 API-[#green]->OrdersHandler
 API-[#green]->OffersHandler
-API-[#green]->TicketsHandler
+API-[#green]->TasksHandler
 
-'left to right direction
-AdminHandler-->Admin
-AdminHandler-->Cluster
-AdminHandler-->Users
-
+RequestsHandler-->Request
 UsersHandler-->Users
 ClientsHandler-->Clients
+ClientsHandler-->Offers
+ClientsHandler-->Orders
 OrdersHandler-->Orders
 OffersHandler-->Offers
-TicketsHandler-->Tickets
-
-Clients -> Orders
-Clients --> Offers
+TasksHandler-->Tasks
 
 Offers->Contracts
 Clients->Contracts
 
-'Orders --> S3
-'Offers --> S3
 Contracts --> S3
 Clients --> S3
-Tickets --> S3
+Tasks --> S3
 
 
 cloud "<$aws>" as CloudS3
 S3 --- CloudS3
 
-Orders --> Tickets
+Orders --> Tasks
 Orders --> Cluster
-Tickets --> Cluster
+Tasks --> Cluster
 
 rectangle " " {
   [CDC service] as CDC
@@ -162,20 +140,27 @@ component "Notification service" as Notify {
   [Email sender] as Email
   [Telegram sender] as Telegram
   [Phone voice mail] as Phone
-}
-'cloud "Outside notification\nservices" as CloudSMS
+  [WebSockets]
+  [Push]
 
-'cloud CloudSMS #pink;line:red;line.bold;text:red [
+  SMS-[hidden]->Email
+  Email-[hidden]->Telegram
+'  Telegram-->Phone
+  Phone-[hidden]->[WebSockets]
+  [WebSockets]-[hidden]->[Push]
+}
+
 cloud CloudSMS #line:red;line.bold; [
 Notification
    services
 ]
 
-Notify --- CloudSMS
+Notify -- CloudSMS
+'Notify -> frontend
 
 MessageBroker ..> Notify
 
-CDC ..> MessageBroker
+CDC .> MessageBroker
 
 legend top right
  **Внешние сервисы**
