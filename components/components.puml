@@ -55,7 +55,7 @@ rectangle "Message broker\nService\n <$kafka>" as MessageBroker {
   [Users service] as Users
   [Clients service] as Clients
   [Orders service] as Orders
-  [Clusters service] as Cluster
+'  [Clusters service] as Cluster
   [Tasks service] as Tasks
   [Upload service] as S3
   [Contracts service] as Contracts
@@ -73,31 +73,30 @@ rectangle "Message broker\nService\n <$kafka>" as MessageBroker {
 note top of MessageBroker
   Сервисы подписаны на сообщения
   от CDC service и вносят изменения
-  напрямую в обход бизнес логики
 end note
 
 'left to right direction
 top to bottom direction
 
+API-->S3
 API-->Request
 API-->Users
 API-->Clients
 API-->Orders
 API-->Tasks
+API-->Contracts
 
-Clients->Contracts
-
-Contracts --> S3
-Clients --> S3
-Tasks --> S3
+'Contracts --> S3
+'Clients --> S3
+'Tasks --> S3
 
 
 cloud "<$aws>" as CloudS3
 S3 --- CloudS3
 
-Orders --> Tasks
-Orders --> Cluster
-Tasks --> Cluster
+'Orders --> Tasks
+'Orders --> Cluster
+'Tasks --> Cluster
 
 rectangle " " {
   [CDC service] as CDC
