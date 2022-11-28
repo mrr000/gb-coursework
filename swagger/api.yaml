@@ -198,12 +198,20 @@ components:
           type: string
         closed_at:
           type: string
+        updated_at:
+          type: string
 
     Orders:
       type: array
       items:
         $ref: "#/components/schemas/Order"
 
+    PaginationResult:
+      type: object
+      properties:
+        page: { type: number, example: 3 }
+        limit: { type: number, example: 20 }
+        results: { type: array, items: {} }
 #    TODO
 #    CreateOrder:
 #    Offers:
@@ -288,8 +296,6 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         '400':
           $ref: "#/components/responses/BadRequest"
-        '418':
-          $ref: "#/components/responses/ImaTeapot"
         '500':
           $ref: "#/components/responses/InternalError"
 
@@ -398,9 +404,14 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Clients"
+                allOf:
+                  - $ref: "#/components/schemas/PaginationResult"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Clients"
         '404':
           $ref: "#/components/responses/NotFound"
         '500':
@@ -431,35 +442,32 @@ paths:
 
   /orders:
     get:
-      summary: "Список заказов"
       tags:
         - Orders
+      summary: "Список заказов"
       security:
         - bearerAuth: []
       parameters:
-        - name: page
-          in: query
-          description: Страница
-          required: true
-          explode: true
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          description: Выводить по
-          required: true
-          explode: true
-          schema:
-            type: integer
-            default: 10
+        - { in: query, name: page, schema: { type: integer } }
+        - { in: query, name: limit, schema: { type: integer } }
+        - {name: manager_id, in: query, description: Идентификатор менеджера, required: false, explode: true, schema: { type: string }}
+        - {name: created_at, in: query, description: Дата создания, required: false, explode: true, schema: { type: string }}
+        - {name: closed_at, in: query, description: Дата закрытия, required: false, explode: true, schema: { type: string }}
+        - {name: updated_at, in: query, description: Дата последнего обновления, required: false, explode: true, schema: { type: string }}
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Orders"
+                allOf:
+                  - $ref: "#/components/schemas/PaginationResult"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Orders"
         '404':
           $ref: "#/components/responses/NotFound"
         '500':
