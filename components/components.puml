@@ -51,15 +51,6 @@ service
 frontend .down. API
 
 rectangle "Message broker\nService\n <$kafka>" as MessageBroker {
-  rectangle " " as ddd{
-    [Requests handler] as RequestsHandler
-    [Users handler] as UsersHandler
-    [Clients handler] as ClientsHandler
-    [Orders handler] as OrdersHandler
-    [Offers handler] as OffersHandler
-    [Tasks handler] as TasksHandler
-  }
-
   [Requests service] as Request
   [Users service] as Users
   [Clients service] as Clients
@@ -88,21 +79,14 @@ end note
 
 'left to right direction
 top to bottom direction
-API-[#green]->RequestsHandler
-API-[#green]->UsersHandler
-API-[#green]->ClientsHandler
-API-[#green]->OrdersHandler
-API-[#green]->OffersHandler
-API-[#green]->TasksHandler
 
-RequestsHandler-->Request
-UsersHandler-->Users
-ClientsHandler-->Clients
-ClientsHandler-->Offers
-ClientsHandler-->Orders
-OrdersHandler-->Orders
-OffersHandler-->Offers
-TasksHandler-->Tasks
+API-->Request
+API-->Users
+API-->Clients
+API-->Offers
+API-->Orders
+API-->Offers
+API-->Tasks
 
 Offers->Contracts
 Clients->Contracts
