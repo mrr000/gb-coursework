@@ -35,7 +35,6 @@ component API [
 **API gateway**
 service
 Проверяет авторизацию,
-раздает requestID,
 осуществляет роутинг
 ]
 
@@ -102,7 +101,7 @@ rectangle " " {
   [CDC service] as CDC
 
   database "**ODBC**" as replicaDB {
-    label "Legacy replica"
+    label "Legacy DataBase"
   }
 
   replicaDB -up-> CDC
