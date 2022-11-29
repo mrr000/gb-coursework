@@ -108,7 +108,20 @@ components:
           type: string
         phone:
           type: string
-    #--------------------------------------------
+
+    UpdateUser:
+      type: object
+      properties:
+        name:
+          type: string
+        account:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+
+    #-----------------CLIENTS---------------------------
     Client:
       type: object
       properties:
@@ -461,6 +474,149 @@ paths:
         '500':
           $ref: "#/components/responses/InternalError"
 
+
+  /users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: идентификатор пользователя
+        schema:
+          type: string
+    get:
+      tags:
+        - Users
+      summary: Получить пользователя по ID
+      operationId: getUserByID
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+    patch:
+      tags:
+        - Users
+      summary: ""
+      operationId: updateUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/UpdateUser"
+      responses:
+        '200':
+          description: OK
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+  /users:
+    get:
+      summary: "Список пользователей"
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Страница
+          required: false
+          explode: true
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Выводить по
+          required: false
+          explode: true
+          schema:
+            type: integer
+            default: 10
+        - name: phone
+          in: query
+          description: Номер телефона
+          required: true
+          explode: true
+          schema:
+            type: string
+        - name: address
+          in: query
+          description: Адрес
+          required: false
+          explode: true
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: ФИО
+          required: false
+          explode: true
+          schema:
+            type: string
+        - name: account
+          in: query
+          description: Номер лицевого счета
+          required: false
+          explode: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginationResult"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Users"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+    post:
+      summary: "Создать пользователя"
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateUser"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '409':
+          $ref: "#/components/responses/Conflict"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
   /orders:
     get:
       tags:
@@ -539,7 +695,6 @@ paths:
 #  /tasks/my - только текущего юзера
 #  /services - список услуг
 #  /users/roles
-#  /users/{id}
 
 #  /clients/?requests=[] ???
 
