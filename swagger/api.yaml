@@ -64,6 +64,27 @@ components:
     InternalError:
       description: Internal Server Error
 
+  parameters:
+    pageParam:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Страница
+    limitParam:
+      in: query
+      name: limit
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 20
+      description: Количество на странице
+
   schemas:
     Error:
       type: object
@@ -162,7 +183,8 @@ components:
         phone:
           type: string
         user_type:
-          type: number
+          type: integer
+          format: int32
           description: Физ/Юр лицо
 
     UpdateClient:
@@ -225,6 +247,34 @@ components:
         updated_at:
           type: string
 
+    PaginationOptions:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int32
+        limit:
+          type: integer
+          format: int32
+
+    FilterOrders:
+      type: object
+      properties:
+        client_id:
+          type: string
+        manager_id:
+          type: string
+          description: Идентификатор менеджера
+        created_at:
+          type: string
+          description: Дата создания
+        closed_at:
+          type: string
+          description: Дата закрытия
+        updated_at:
+          type: string
+          description: Дата последнего изменения
+
     Orders:
       type: array
       items:
@@ -238,6 +288,12 @@ components:
       items:
         $ref: "#/components/schemas/Request"
 
+    CreateRequest:
+      type: object
+
+    UpdateRequest:
+      type: object
+
     Task:
       type: object
 
@@ -246,11 +302,17 @@ components:
       items:
         $ref: "#/components/schemas/Task"
 
+    CreateTask:
+      type: object
+
+    UpdateTask:
+      type: object
+
     PaginationResult:
       type: object
       properties:
-        page: { type: number, example: 3 }
-        limit: { type: number, example: 20 }
+        page: { type: "integer", format: "int32", example: 3 }
+        limit: { type: "integer", format: "int32", example: 20 }
         results: { type: array, items: {} }
 
 paths:
@@ -388,22 +450,8 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: page
-          in: query
-          description: Страница
-          required: false
-          explode: true
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          description: Выводить по
-          required: false
-          explode: true
-          schema:
-            type: integer
-            default: 10
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
         - name: phone
           in: query
           description: Номер телефона
@@ -530,22 +578,8 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: page
-          in: query
-          description: Страница
-          required: false
-          explode: true
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          description: Выводить по
-          required: false
-          explode: true
-          schema:
-            type: integer
-            default: 10
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
         - name: phone
           in: query
           description: Номер телефона
@@ -625,12 +659,14 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - { in: query, name: page, schema: { type: integer } }
-        - { in: query, name: limit, schema: { type: integer } }
-        - {name: manager_id, in: query, description: Идентификатор менеджера, required: false, explode: true, schema: { type: string }}
-        - {name: created_at, in: query, description: Дата создания, required: false, explode: true, schema: { type: string }}
-        - {name: closed_at, in: query, description: Дата закрытия, required: false, explode: true, schema: { type: string }}
-        - {name: updated_at, in: query, description: Дата последнего обновления, required: false, explode: true, schema: { type: string }}
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - in: query
+          name: filter
+          style: deepObject
+          allowReserved: true
+          schema:
+            $ref: "#/components/schemas/FilterOrders"
       responses:
         '200':
           description: OK
@@ -683,7 +719,7 @@ paths:
 #  DELETE PATCH /orders/{id}
 
 #  источник обращения
-#  GET POST  /requests/
+#  GET POST /requests/
 #  GET PATCH /requests/{id}
 #  GET /requests/{id}/orders
 #  GET /requests/{id}/tasks
