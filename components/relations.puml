@@ -20,6 +20,8 @@ component {
 }
 </style>
 
+title ""
+
 'title
 '<size:30>Диаграмма компонентов</size>
 'end title
@@ -47,7 +49,8 @@ service
 
 frontend .down. API
 
-rectangle "Message broker\nService\n <$kafka>" as MessageBroker {
+'rectangle "Message broker\nService\n <$kafka>" as ServicesCluster {
+rectangle " " as ServicesCluster {
   [Requests service] as Request
   [Users service] as Users
   [Clients service] as Clients
@@ -59,15 +62,45 @@ rectangle "Message broker\nService\n <$kafka>" as MessageBroker {
   ' S3 должен ссылаться на внешний сервис осуществляющий хранение
   ' У каждого сервиса работающего с БД должен быть интерфейс и реализация репозитория
 
-  note right of MessageBroker
-    Сервисы и обработчики могут
-    раздавать сообщения которые
-    перехватываются и обрабатываются
-    Notification service
-  end note
+  API-->S3
+  API-->Request
+  API-->Users
+  API-->Clients
+  API-->Orders
+  API-->Tasks
+  API-->Contracts
+
+  database UploadDB
+  S3 --> UploadDB
+
+  database RequestDB
+  Request --> RequestDB
+
+  database UsersDB
+  Users --> UsersDB
+
+  database ClientsDB
+  Clients --> ClientsDB
+
+  database OrdersDB
+  Orders --> OrdersDB
+
+  database TasksDB
+  Tasks --> TasksDB
+
+  database ContractsDB
+  Contracts --> ContractsDB
+
+'  kafka-down.S3
+'  kafka-down.Request
+'  kafka-down.Users
+'  kafka-down.Clients
+'  kafka-down.Orders
+'  kafka-down.Tasks
+'  kafka-down.Contracts
 }
 
-note top of MessageBroker
+note top of ServicesCluster
   Сервисы подписаны на сообщения
   от CDC service и вносят изменения
 end note
@@ -75,43 +108,32 @@ end note
 'left to right direction
 top to bottom direction
 
-API-->S3
-API-->Request
-API-->Users
-API-->Clients
-API-->Orders
-API-->Tasks
-API-->Contracts
-
+queue "<$kafka>" as kafka
 'Contracts --> S3
 'Clients --> S3
 'Tasks --> S3
 
 
-cloud "<$aws>" as CloudS3
-S3 --- CloudS3
+S3 --- () "Облачное\nхранилище"
 
 'Orders --> Tasks
 'Orders --> Cluster
 'Tasks --> Cluster
 
-rectangle " " {
-  [CDC service] as CDC
+component CDC {
 
   database "**ODBC**" as replicaDB {
     label "Legacy DataBase"
   }
 
-  replicaDB -up-> CDC
-
-  note right of [CDC]
-  Рассылает через брокер
-  сообщений информацию
-  об изменениях в легаси БД
-  end note
+'  note right of [CDC]
+'  Рассылает через брокер
+'  сообщений информацию
+'  об изменениях в легаси БД
+'  end note
 }
 
-component "Notification service" as Notify {
+component "Notification\nservice" as Notify {
   [SMS sender] as SMS
   [Email sender] as Email
   [Telegram sender] as Telegram
@@ -126,22 +148,17 @@ component "Notification service" as Notify {
   [WebSockets]-[hidden]->[Push]
 }
 
-cloud CloudSMS #line:red;line.bold; [
-Notification
-   services
-]
-
-Notify -- CloudSMS
+Notify .up.> () "Сторонние\nсервисы\n "
 'Notify -> frontend
 
-MessageBroker ..> Notify
-
-CDC .> MessageBroker
+'ServicesCluster ..> Notify
+ServicesCluster .. kafka
+Notify .down. kafka
+CDC .up. kafka
 
 legend top right
  **Внешние сервисы**
  ELK
- Message broker
  Tracers
  CDC Service
  S3 - облачные хранилища
