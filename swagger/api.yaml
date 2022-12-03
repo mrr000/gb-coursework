@@ -147,7 +147,8 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int32
         name:
           type: string
         accountNum:
@@ -203,7 +204,8 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int32
         inn:
           type: string
         short_name:
@@ -231,21 +233,55 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int32
         request_id:
-          type: string
+          type: integer
+          format: int32
           description: "Номер обращения"
         status:
-          type: string
+          type: integer
+          format: int32
         manager_id:
-          type: string
+          type: integer
+          format: int32
           description: "Ответственный"
+        client_id:
+          type: integer
+          format: int32
+          description: "Клиент"
         created_at:
           type: string
         closed_at:
           type: string
         updated_at:
           type: string
+
+    CreateOrder:
+      type: object
+      properties:
+        request_id:
+          type: integer
+          format: int32
+          description: "Номер обращения"
+        status:
+          type: integer
+          format: int32
+        manager_id:
+          type: integer
+          format: int32
+          description: "Ответственный"
+        client_id:
+          type: integer
+          format: int32
+          description: "Клиент"
+
+    UpdateOrder:
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
 
     PaginationOptions:
       type: object
@@ -261,9 +297,11 @@ components:
       type: object
       properties:
         client_id:
-          type: string
+          type: integer
+          format: int32
         manager_id:
-          type: string
+          type: integer
+          format: int32
           description: Идентификатор менеджера
         created_at:
           type: string
@@ -685,10 +723,33 @@ paths:
           $ref: "#/components/responses/NotFound"
         '500':
           $ref: "#/components/responses/InternalError"
+    post:
+      summary: "Создать заказ"
+      tags:
+        - Orders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrder"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '409':
+          $ref: "#/components/responses/Conflict"
+        '500':
+          $ref: "#/components/responses/InternalError"
 
   /orders/{id}:
     get:
-      summary: "Заказ"
+      summary: "Получить заказ"
       tags:
         - Orders
       parameters:
@@ -711,13 +772,49 @@ paths:
           $ref: "#/components/responses/NotFound"
         '500':
           $ref: "#/components/responses/InternalError"
+    patch:
+      tags:
+        - Orders
+      summary: "Обновить заказ"
+      operationId: updateOrder
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/UpdateOrder"
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+    delete:
+      summary: "Удалить"
+      tags:
+        - Orders
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор заказа
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
 
 # TODO реализовать запросы
-#  как фиксировать первый реквестид? будет ли отдельный сервис судя по ERD
-#  слишком много будет роутов если использовать идент клиента в URL...
-#  POST /orders/
-#  DELETE PATCH /orders/{id}
-
 #  источник обращения
 #  GET POST /requests/
 #  GET PATCH /requests/{id}
