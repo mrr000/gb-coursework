@@ -332,6 +332,26 @@ components:
     UpdateRequest:
       type: object
 
+    FilterRequests:
+      type: object
+      properties:
+        client_id:
+          type: integer
+          format: int32
+        manager_id:
+          type: integer
+          format: int32
+          description: Идентификатор менеджера
+        created_at:
+          type: string
+          description: Дата создания
+        closed_at:
+          type: string
+          description: Дата закрытия
+        updated_at:
+          type: string
+          description: Дата последнего изменения
+
     Task:
       type: object
 
@@ -814,16 +834,119 @@ paths:
         '500':
           $ref: "#/components/responses/InternalError"
 
+  /requests:
+    get:
+      tags:
+        - Requests
+      summary: "Список обращений"
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - in: query
+          name: filter
+          style: deepObject
+          allowReserved: true
+          schema:
+            $ref: "#/components/schemas/FilterRequests"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginationResult"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Requests"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+    post:
+      summary: "Создать oбращение"
+      tags:
+        - Requests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRequest"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Request"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '409':
+          $ref: "#/components/responses/Conflict"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+  /requests/{id}:
+    get:
+      summary: "Получить обращение"
+      tags:
+        - Requests
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Request"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+    patch:
+      tags:
+        - Requests
+      summary: "Обновить обращение"
+      operationId: updateRequest
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/UpdateRequest"
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
 # TODO реализовать запросы
 #  источник обращения
-#  GET POST /requests/
-#  GET PATCH /requests/{id}
 #  GET /requests/{id}/orders
 #  GET /requests/{id}/tasks
 
 #  /tasks/?filter[clients]={ids},filter[orders]={ids}
 #  /tasks/{id}
 #  /orders/{id}/tasks
+
 #  /tasks/dashboard - тут не нужны все тикеты из беклога например и завершенные... подумать
 #  /tasks/my - только текущего юзера
 #  /services - список услуг
