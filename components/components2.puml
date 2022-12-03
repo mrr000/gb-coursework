@@ -1,0 +1,84 @@
+@startuml
+!theme vibrant
+'skinparam monochrome true
+
+!define SPRITESURL https://raw.githubusercontent.com/plantuml-stdlib/gilbarbara-plantuml-sprites/v1.0/sprites
+!includeurl SPRITESURL/aws.puml
+!includeurl SPRITESURL/kafka.puml
+
+<style>
+component {
+  HorizontalAlignment center
+}
+</style>
+
+title
+<size:25>Диаграмма компонентов</size>
+end title
+
+interface " " as I_Orders
+interface " " as I_ClientsRequests
+interface " " as I_Tasks
+interface " " as I_Clients
+interface " " as I_Contract
+interface " " as I_Users
+
+component "Requests service" as Request {
+  portout " " as p0
+}
+
+[Users service] as Users
+[Clients service] as Clients
+[Orders service] as Orders
+[Tasks service] as Tasks
+[Upload service] as Upload
+[Contracts service] as Contracts
+
+'TODO не знаю как отобразить взаимодействие
+'[CDC service] as CDC
+'[Notification service] as Notify
+
+'Request -down- Api
+p0 -down- [API]
+
+Orders -left- I_Orders
+Request -left-( I_Orders
+
+Tasks -down- I_Tasks
+Orders -up-( I_Tasks
+
+Clients -down- I_ClientsRequests
+Request -up-( I_ClientsRequests
+
+Upload -up- I_Contract
+Contracts -up-( I_Contract
+
+Contracts -left- I_Clients
+Clients -right-( I_Clients
+
+Users -up- I_Users
+Request -down-( I_Users
+
+database UploadDB
+Upload ..> UploadDB
+
+database RequestDB
+Request .up.> RequestDB
+
+database UsersDB
+Users ..> UsersDB
+
+database ClientsDB
+Clients .left.> ClientsDB
+
+database OrdersDB
+Orders ..> OrdersDB
+'
+database TasksDB
+Tasks ..> TasksDB
+
+database ContractsDB
+Contracts ..> ContractsDB
+
+
+@enduml
