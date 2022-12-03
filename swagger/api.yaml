@@ -15,6 +15,7 @@ tags:
   - name: Clients
   - name: Orders
   - name: Tasks
+  - name: Dashboard
 
 components:
   securitySchemes:
@@ -920,7 +921,7 @@ paths:
     patch:
       tags:
         - Tasks
-      summary: "Обновить"
+      summary: "Обновить задачу"
       operationId: updateTask
       security:
         - bearerAuth: []
@@ -940,7 +941,7 @@ paths:
           $ref: "#/components/responses/InternalError"
 
     delete:
-      summary: "Удалить"
+      summary: "Удалить задачу"
       tags:
         - Tasks
       parameters:
@@ -1064,6 +1065,33 @@ paths:
         '500':
           $ref: "#/components/responses/InternalError"
 
+  /dashboard/tasks:
+    get:
+      tags:
+        - Dashboard
+      summary: "Список задач для дашборда"
+      description: "Отображает список актуальных задач"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: filter
+          style: deepObject
+          allowReserved: true
+          schema:
+            $ref: "#/components/schemas/FilterRequests"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tasks"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
   /requests/{id}/orders:
     $ref: '#/paths/~1orders~1{id}'
 
@@ -1073,20 +1101,17 @@ paths:
   /orders/{id}/tasks:
     $ref: '#/paths/~1tasks~1{id}'
 
+  /dashboard/tasks/my:
+    $ref: '#/paths/~1dashboard~1tasks'
+    description: "Список актуальных задач текущего пользователя"
 
 # TODO реализовать запросы
 # TODO заполнить модели
 
 #  /tasks/?filter[clients]={ids},filter[orders]={ids}
-
-#  /tasks/dashboard - тут не нужны все тикеты из беклога например и завершенные... подумать
-#  /tasks/my - только текущего юзера
 #  /services - список услуг
 #  /users/roles
-
 #  /clients/?requests=[] ???
 
-# upload вынести в handlers?
-# где видим договор и данные контрагента в клиенте? ДА!
 # https://learn.microsoft.com/en-us/rest/api/partner-center/manage-orders/get%20a%20list%20of%20products%20(by%20customer)
 # https://www.jetbrains.com/help/youtrack/devportal/resource-api-articles-articleID-comments.html
