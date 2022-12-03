@@ -834,6 +834,132 @@ paths:
         '500':
           $ref: "#/components/responses/InternalError"
 
+  /tasks:
+    get:
+      tags:
+        - Tasks
+      summary: "Список задач"
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - in: query
+          name: filter
+          style: deepObject
+          allowReserved: true
+          schema:
+            $ref: "#/components/schemas/FilterRequests"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginationResult"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Tasks"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+    post:
+      summary: "Создать задачу"
+      tags:
+        - Tasks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTask"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '409':
+          $ref: "#/components/responses/Conflict"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+  /tasks/{id}:
+    get:
+      summary: "Получить задачу"
+      tags:
+        - Tasks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tasks"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+    patch:
+      tags:
+        - Tasks
+      summary: "Обновить"
+      operationId: updateTask
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/UpdateTask"
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+    delete:
+      summary: "Удалить"
+      tags:
+        - Tasks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
   /requests:
     get:
       tags:
@@ -938,14 +1064,20 @@ paths:
         '500':
           $ref: "#/components/responses/InternalError"
 
+  /requests/{id}/orders:
+    $ref: '#/paths/~1orders~1{id}'
+
+  /requests/{id}/tasks:
+    $ref: '#/paths/~1tasks~1{id}'
+
+  /orders/{id}/tasks:
+    $ref: '#/paths/~1tasks~1{id}'
+
+
 # TODO реализовать запросы
-#  источник обращения
-#  GET /requests/{id}/orders
-#  GET /requests/{id}/tasks
+# TODO заполнить модели
 
 #  /tasks/?filter[clients]={ids},filter[orders]={ids}
-#  /tasks/{id}
-#  /orders/{id}/tasks
 
 #  /tasks/dashboard - тут не нужны все тикеты из беклога например и завершенные... подумать
 #  /tasks/my - только текущего юзера
