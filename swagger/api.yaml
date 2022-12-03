@@ -10,10 +10,12 @@ servers:
 
 tags:
   - name: Authorization
+  - name: Users
+  - name: Requests
   - name: Clients
-    description: ""
   - name: Orders
-    description: ""
+  - name: Tasks
+  - name: Dashboard
 
 components:
   securitySchemes:
@@ -63,6 +65,27 @@ components:
     InternalError:
       description: Internal Server Error
 
+  parameters:
+    pageParam:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Страница
+    limitParam:
+      in: query
+      name: limit
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 20
+      description: Количество на странице
+
   schemas:
     Error:
       type: object
@@ -91,6 +114,11 @@ components:
         password:
           type: string
 
+    Users:
+      type: array
+      items:
+        $ref: "#/components/schemas/User"
+
     CreateUser:
       type: object
       properties:
@@ -102,12 +130,26 @@ components:
           type: string
         phone:
           type: string
-    #--------------------------------------------
-    Clients:
+
+    UpdateUser:
+      type: object
+      properties:
+        name:
+          type: string
+        account:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+
+    #-----------------CLIENTS---------------------------
+    Client:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int32
         name:
           type: string
         accountNum:
@@ -124,6 +166,11 @@ components:
         contragent:
           $ref: "#/components/schemas/Contragent"
 
+    Clients:
+      type: array
+      items:
+        $ref: "#/components/schemas/Client"
+
     CreateClient:
       type: object
       properties:
@@ -138,7 +185,8 @@ components:
         phone:
           type: string
         user_type:
-          type: number
+          type: integer
+          format: int32
           description: Физ/Юр лицо
 
     UpdateClient:
@@ -157,7 +205,8 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int32
         inn:
           type: string
         short_name:
@@ -185,15 +234,23 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int32
         request_id:
-          type: string
+          type: integer
+          format: int32
           description: "Номер обращения"
         status:
-          type: string
+          type: integer
+          format: int32
         manager_id:
-          type: string
+          type: integer
+          format: int32
           description: "Ответственный"
+        client_id:
+          type: integer
+          format: int32
+          description: "Клиент"
         created_at:
           type: string
         closed_at:
@@ -201,23 +258,121 @@ components:
         updated_at:
           type: string
 
+    CreateOrder:
+      type: object
+      properties:
+        request_id:
+          type: integer
+          format: int32
+          description: "Номер обращения"
+        status:
+          type: integer
+          format: int32
+        manager_id:
+          type: integer
+          format: int32
+          description: "Ответственный"
+        client_id:
+          type: integer
+          format: int32
+          description: "Клиент"
+
+    UpdateOrder:
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+
+    PaginationOptions:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int32
+        limit:
+          type: integer
+          format: int32
+
+    FilterOrders:
+      type: object
+      properties:
+        client_id:
+          type: integer
+          format: int32
+        manager_id:
+          type: integer
+          format: int32
+          description: Идентификатор менеджера
+        created_at:
+          type: string
+          description: Дата создания
+        closed_at:
+          type: string
+          description: Дата закрытия
+        updated_at:
+          type: string
+          description: Дата последнего изменения
+
     Orders:
       type: array
       items:
         $ref: "#/components/schemas/Order"
 
+    Request:
+      type: object
+
+    Requests:
+      type: array
+      items:
+        $ref: "#/components/schemas/Request"
+
+    CreateRequest:
+      type: object
+
+    UpdateRequest:
+      type: object
+
+    FilterRequests:
+      type: object
+      properties:
+        client_id:
+          type: integer
+          format: int32
+        manager_id:
+          type: integer
+          format: int32
+          description: Идентификатор менеджера
+        created_at:
+          type: string
+          description: Дата создания
+        closed_at:
+          type: string
+          description: Дата закрытия
+        updated_at:
+          type: string
+          description: Дата последнего изменения
+
+    Task:
+      type: object
+
+    Tasks:
+      type: array
+      items:
+        $ref: "#/components/schemas/Task"
+
+    CreateTask:
+      type: object
+
+    UpdateTask:
+      type: object
+
     PaginationResult:
       type: object
       properties:
-        page: { type: number, example: 3 }
-        limit: { type: number, example: 20 }
+        page: { type: "integer", format: "int32", example: 3 }
+        limit: { type: "integer", format: "int32", example: 20 }
         results: { type: array, items: {} }
-#    TODO
-#    CreateOrder:
-#    Offers:
-#    CreateOffer:
-#    Tickets:
-#    CreateTicket:
 
 paths:
   /auth:
@@ -354,22 +509,8 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: page
-          in: query
-          description: Страница
-          required: false
-          explode: true
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          description: Выводить по
-          required: false
-          explode: true
-          schema:
-            type: integer
-            default: 10
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
         - name: phone
           in: query
           description: Номер телефона
@@ -440,6 +581,135 @@ paths:
         '500':
           $ref: "#/components/responses/InternalError"
 
+
+  /users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: идентификатор пользователя
+        schema:
+          type: string
+    get:
+      tags:
+        - Users
+      summary: Получить пользователя по ID
+      operationId: getUserByID
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+    patch:
+      tags:
+        - Users
+      summary: ""
+      operationId: updateUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/UpdateUser"
+      responses:
+        '200':
+          description: OK
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+  /users:
+    get:
+      summary: "Список пользователей"
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - name: phone
+          in: query
+          description: Номер телефона
+          required: true
+          explode: true
+          schema:
+            type: string
+        - name: address
+          in: query
+          description: Адрес
+          required: false
+          explode: true
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: ФИО
+          required: false
+          explode: true
+          schema:
+            type: string
+        - name: account
+          in: query
+          description: Номер лицевого счета
+          required: false
+          explode: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginationResult"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Users"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+    post:
+      summary: "Создать пользователя"
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateUser"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '409':
+          $ref: "#/components/responses/Conflict"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
   /orders:
     get:
       tags:
@@ -448,12 +718,14 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - { in: query, name: page, schema: { type: integer } }
-        - { in: query, name: limit, schema: { type: integer } }
-        - {name: manager_id, in: query, description: Идентификатор менеджера, required: false, explode: true, schema: { type: string }}
-        - {name: created_at, in: query, description: Дата создания, required: false, explode: true, schema: { type: string }}
-        - {name: closed_at, in: query, description: Дата закрытия, required: false, explode: true, schema: { type: string }}
-        - {name: updated_at, in: query, description: Дата последнего обновления, required: false, explode: true, schema: { type: string }}
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - in: query
+          name: filter
+          style: deepObject
+          allowReserved: true
+          schema:
+            $ref: "#/components/schemas/FilterOrders"
       responses:
         '200':
           description: OK
@@ -472,10 +744,33 @@ paths:
           $ref: "#/components/responses/NotFound"
         '500':
           $ref: "#/components/responses/InternalError"
+    post:
+      summary: "Создать заказ"
+      tags:
+        - Orders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrder"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '409':
+          $ref: "#/components/responses/Conflict"
+        '500':
+          $ref: "#/components/responses/InternalError"
 
   /orders/{id}:
     get:
-      summary: "Заказ"
+      summary: "Получить заказ"
       tags:
         - Orders
       parameters:
@@ -498,28 +793,325 @@ paths:
           $ref: "#/components/responses/NotFound"
         '500':
           $ref: "#/components/responses/InternalError"
+    patch:
+      tags:
+        - Orders
+      summary: "Обновить заказ"
+      operationId: updateOrder
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/UpdateOrder"
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+    delete:
+      summary: "Удалить"
+      tags:
+        - Orders
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор заказа
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+  /tasks:
+    get:
+      tags:
+        - Tasks
+      summary: "Список задач"
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - in: query
+          name: filter
+          style: deepObject
+          allowReserved: true
+          schema:
+            $ref: "#/components/schemas/FilterRequests"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginationResult"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Tasks"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+    post:
+      summary: "Создать задачу"
+      tags:
+        - Tasks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTask"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '409':
+          $ref: "#/components/responses/Conflict"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+  /tasks/{id}:
+    get:
+      summary: "Получить задачу"
+      tags:
+        - Tasks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tasks"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+    patch:
+      tags:
+        - Tasks
+      summary: "Обновить задачу"
+      operationId: updateTask
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/UpdateTask"
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+    delete:
+      summary: "Удалить задачу"
+      tags:
+        - Tasks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+  /requests:
+    get:
+      tags:
+        - Requests
+      summary: "Список обращений"
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - in: query
+          name: filter
+          style: deepObject
+          allowReserved: true
+          schema:
+            $ref: "#/components/schemas/FilterRequests"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginationResult"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Requests"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+    post:
+      summary: "Создать oбращение"
+      tags:
+        - Requests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRequest"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Request"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '409':
+          $ref: "#/components/responses/Conflict"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+  /requests/{id}:
+    get:
+      summary: "Получить обращение"
+      tags:
+        - Requests
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Request"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+    patch:
+      tags:
+        - Requests
+      summary: "Обновить обращение"
+      operationId: updateRequest
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/UpdateRequest"
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+  /dashboard/tasks:
+    get:
+      tags:
+        - Dashboard
+      summary: "Список задач для дашборда"
+      description: "Отображает список актуальных задач"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: filter
+          style: deepObject
+          allowReserved: true
+          schema:
+            $ref: "#/components/schemas/FilterRequests"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tasks"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+  /requests/{id}/orders:
+    $ref: '#/paths/~1orders~1{id}'
+
+  /requests/{id}/tasks:
+    $ref: '#/paths/~1tasks~1{id}'
+
+  /orders/{id}/tasks:
+    $ref: '#/paths/~1tasks~1{id}'
+
+  /dashboard/tasks/my:
+    $ref: '#/paths/~1dashboard~1tasks'
+    description: "Список актуальных задач текущего пользователя"
 
 # TODO реализовать запросы
-#  как фиксировать первый реквестид? будет ли отдельный сервис судя по ERD
-#  слишком много будет роутов если использовать идент клиента в URL...
-#  POST /orders/
-#  DELETE /orders/
-#  PATCH /orders/{id}
-#  /requests/ добавить источник обращения
-#  /requests/{id}
-#  /clients/{id}/requests/
-#  /clients/{id}/orders/
-#  /clients/{id}/orders/{order_id}/tickets
-#  /clients/{id}/orders/{order_id}/tickets/{ticket_id}
-#  /clients/{id}/offers
-#  /clients/{id}/offers/{offer_id}
-#  /offers/
-#  /offers/{id}
-#  /tickets/
-#  /tickets/{id}
-#  /tickets/forDashboard - тут не нужны все тикеты из беклога например и завершенные... подумать
-#  /tickets/my - только текущего юзера
+# TODO заполнить модели
+
+#  /tasks/?filter[clients]={ids},filter[orders]={ids}
 #  /services - список услуг
 #  /users/roles
-# upload вынести в handlers?
-# где видим договор и данные контрагента в клиенте? ДА!
+#  /clients/?requests=[] ???
+
+# https://learn.microsoft.com/en-us/rest/api/partner-center/manage-orders/get%20a%20list%20of%20products%20(by%20customer)
+# https://www.jetbrains.com/help/youtrack/devportal/resource-api-articles-articleID-comments.html
