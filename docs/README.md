@@ -54,6 +54,12 @@
 </details>
 
 ### Информационная архитектура решения
+#### Потоки данных (new) (доработка)
+<details>
+  <summary>Показать</summary>
+  <img src="https://github.com/mrr000/gb-coursework/blob/1c8b04eecb4ac0a6c379b4d5305dfa185ab53b34/DFD/DFD.png" height=100% width=100%><br />
+</details>
+
 #### Бизнес-данные
 Можно заполнить по основным сущностям (+ приложить ER)
 | № | Название объекта данных | Где хранится (системы) | Статус изменения   объекта данных | Объем данных | Глубина хранения |
@@ -64,10 +70,10 @@
 
 ### Архитектура приложения
 
-#### Концептуальная модель и интеграция (new)
+#### Концептуальная модель и интеграция (new) (готово)
 <details>
-  <summary>Диаграмма контейнеров</summary>
-  <img src="https://github.com/mrr000/gb-coursework/blob/17964f2df2398e33a1259572e981f272d098c6c3/C4-diagram/container%20diagram.png" height=150% width=50%><br />
+  <summary>Показать</summary>
+  <img src="https://github.com/mrr000/gb-coursework/blob/17964f2df2398e33a1259572e981f272d098c6c3/C4-diagram/container%20diagram.png" height=100% width=100%><br />
 </details>
 
 #### Перечень компонентов
