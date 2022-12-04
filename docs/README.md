@@ -57,10 +57,14 @@
 
 ### Информационная архитектура решения
 
-#### Потоки данных
+#### Потоки данных (data flow diagram)
 <details>
-  <summary>Показать</summary>
-  <img src="https://github.com/mrr000/gb-coursework/blob/1c8b04eecb4ac0a6c379b4d5305dfa185ab53b34/DFD/DFD.png" height=100% width=100%><br />
+  <summary>Уровень 0</summary>
+  <img src="https://github.com/mrr000/gb-coursework/blob/3fa3828089952c9b50eab3b1765ad0131bea2621/DFD/DFD-level0.png" height=100% width=100%><br /> 
+</details>
+<details>
+  <summary>Уровень 1</summary>
+  <img src="https://github.com/mrr000/gb-coursework/blob/3fa3828089952c9b50eab3b1765ad0131bea2621/DFD/DFD-level1.png" height=100% width=100%><br /> 
 </details>
 
 #### Бизнес-данные
