@@ -43,18 +43,31 @@
 |     |                          |                                |                                                  |                                              |                                                         |
 
 #### Функциональная модель процессов
-<details>
-  <summary>Sequence</summary>
-  <img src="https://github.com/mrr000/gb-coursework/blob/ebf1358df19497d4488f0496308e5e04172bc64e/Sequence/S_Overview.png" height=150% width=50%><br />
-  <img src="https://github.com/mrr000/gb-coursework/blob/ebf1358df19497d4488f0496308e5e04172bc64e/Sequence/S_Client.png" width=50%><br />
-  <img src="https://github.com/mrr000/gb-coursework/blob/ebf1358df19497d4488f0496308e5e04172bc64e/Sequence/S_Request.png" width=50%><br />
-  <img src="https://github.com/mrr000/gb-coursework/blob/ebf1358df19497d4488f0496308e5e04172bc64e/Sequence/S_Auth.png" width=50%>
+
+<details><summary>Use-case diagrams</summary>
+
+![Диаграмма вариантов использования - общая](../Use-case/Use_Overview.png)
+![Диаграмма вариантов использования - работа с клиентом](../Use-case/Use_Client.png)
+![Диаграмма вариантов использования - дашборд](../Use-case/Use_Dashboard.png)
+![Диаграмма вариантов использования - работа с обращениями](../Use-case/Use_Request.png)
+![Диаграмма вариантов использования - работа с задачами](../Use-case/Use_Task.png)
+
 </details>
-<details>
-  <summary>Use-case</summary>
-  <img src="https://github.com/mrr000/gb-coursework/blob/ebf1358df19497d4488f0496308e5e04172bc64e/Use-case/Use_Overview.png" width=20%><br />
-  <img src="https://github.com/mrr000/gb-coursework/blob/ebf1358df19497d4488f0496308e5e04172bc64e/Use-case/Use_Request.png" width=50%><br />
-  <img src="https://github.com/mrr000/gb-coursework/blob/ebf1358df19497d4488f0496308e5e04172bc64e/Use-case/Use_Task.png" width=50%>
+
+<details><summary>Sequence diagrams</summary>
+
+![Диаграмма последовательности - общая](../Sequence/S_Overview.png)
+![Диаграмма последовательности - работа с клиентом](../Sequence/S_Client.png)
+![Диаграмма последовательности - аутентификация и авторизация](../Sequence/S_Auth.png)
+![Диаграмма последовательности - работа с обращениями](../Sequence/S_Request.png)
+![Диаграмма последовательности - работа с задачами](../Sequence/S_Task.png)
+
+</details>
+
+<details><summary>BPMN diagram</summary>
+
+![Бизнес процесс работы с заявкой](../BPMN/BPMN_Task.png)
+
 </details>
 
 ### Информационная архитектура решения
@@ -107,23 +120,33 @@
 
 #### Архитектура БД
 
-<details>
- <summary>Показать</summary>
- <img src="https://github.com/mrr000/gb-coursework/blob/bc4f03fd48eea4c62c1b88ebf8c27de5b27c85c7/DB-architecture/DB-architecture.png" height=100% width=100%><br /> 
+<details><summary>Репликация</summary>
+
+![Репликация](../DB-architecture/DB-architecture.png)
+
 </details>
+
+<details><summary>Катастрофоустойчивость</summary>
+
+![Катастрофоустойчивость](../DB-architecture/DB_DisasterRecovery.jpg)
+
+</details>
+
 
 #### Модель развертывания приложений
 
-<details><summary>Показать диаграмму развертывания</summary>
+<details><summary>Диаграмма развертывания</summary>
 
 ![Диаграмма развёртывания](../Deployment/deployment.png)
 
 </details>
 
 #### Open Api
-<details>
-  <summary>Swagger</summary>
-  https://github.com/mrr000/gb-coursework/blob/ebf1358df19497d4488f0496308e5e04172bc64e/swagger/api.yaml
+
+<details><summary>Open API</summary>
+
+![Open API](../swagger/api.yaml)
+
 </details>
 
 ### Требования и решения по безопасности
