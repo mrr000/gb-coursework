@@ -135,7 +135,7 @@
 
 #### Архитектура БД
 
-<details><summary>Репликация</summary>
+<details><summary>Масштабирование</summary>
 
 ![Репликация](../DB-architecture/DB-architecture.png)
 
