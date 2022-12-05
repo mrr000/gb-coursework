@@ -283,7 +283,7 @@
 
 <details><summary>Диаграмма развертывания</summary>
 
-![Диаграмма развёртывания](../Deployment/deployment.png)
+![Диаграмма развёртывания](../Deployment/deployment2.png)
 
 </details>
 
