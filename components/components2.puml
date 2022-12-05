@@ -22,12 +22,14 @@ interface " " as I_Tasks
 interface " " as I_Clients
 interface " " as I_Contract
 interface " " as I_Users
+'interface " " as I_UsersDashboard
+'interface " " as I_UsersKeycloak
 
-component "Requests service" as Request {
+component "Requests\nservice" as Request {
   portout " " as p0
 }
 
-[Users service] as Users
+[Auth service] as Users
 [Clients service] as Clients
 [Orders service] as Orders
 [Tasks service] as Tasks
@@ -39,13 +41,23 @@ component "Requests service" as Request {
 '[Notification service] as Notify
 
 'Request -down- Api
+component "API\ngateway" as API
 p0 -down- [API]
 
 rectangle "WEB app" as WEB #FEFECE
-component [KeyCloak] as keyCloak #ADD1A2
-[API] -left- keyCloak
+'component [KeyCloak] as keyCloak #ADD1A2
+'[API] -left- keyCloak
 [API] <.. WEB
 
+'component [Dashboard\nservice] as Dashboard
+[API] .right. Users
+'[API] .. Dashboard
+
+'Dashboard -right-( I_UsersDashboard
+'Users -right- I_UsersDashboard
+
+'Dashboard -left-( I_UsersKeycloak
+'keyCloak -left- I_UsersKeycloak
 
 Orders -left- I_Orders
 Request -left-( I_Orders
@@ -71,8 +83,8 @@ Upload ..> UploadDB
 database RequestDB
 Request .up.> RequestDB
 
-database UsersDB
-Users ..> UsersDB
+database DB
+Users ..> DB
 
 database ClientsDB
 Clients .left.> ClientsDB
