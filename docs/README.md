@@ -192,6 +192,8 @@
 
 ![Open API](../swagger/api.yaml)
 
+<img src="../swagger/swagger.png" width=100%>
+
 </details>
 
 ### Требования и решения по безопасности
