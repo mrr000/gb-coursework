@@ -15,7 +15,7 @@ tags:
   - name: Clients
   - name: Orders
   - name: Tasks
-  - name: Dashboard
+  - name: DashBoard
 
 components:
   securitySchemes:
@@ -796,6 +796,13 @@ paths:
     patch:
       tags:
         - Orders
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: идентификатор заказа
+          schema:
+            type: string
       summary: "Обновить заказ"
       operationId: updateOrder
       security:
@@ -893,6 +900,40 @@ paths:
         '500':
           $ref: "#/components/responses/InternalError"
 
+  /tasks/dashboard:
+    get:
+      tags:
+        - Tasks
+      summary: "Список задач на дашборе"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: filter
+          style: deepObject
+          allowReserved: true
+          schema:
+            $ref: "#/components/schemas/FilterRequests"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginationResult"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Tasks"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+
+
   /tasks/{id}:
     get:
       summary: "Получить задачу"
@@ -921,6 +962,12 @@ paths:
     patch:
       tags:
         - Tasks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       summary: "Обновить задачу"
       operationId: updateTask
       security:
@@ -1046,6 +1093,12 @@ paths:
     patch:
       tags:
         - Requests
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       summary: "Обновить обращение"
       operationId: updateRequest
       security:
@@ -1065,12 +1118,12 @@ paths:
         '500':
           $ref: "#/components/responses/InternalError"
 
-  /dashboard/tasks:
+  /dashboard/:
     get:
       tags:
-        - Dashboard
-      summary: "Список задач для дашборда"
-      description: "Отображает список актуальных задач"
+        - DashBoard
+      summary: "Список дашбордов"
+      description: ""
       security:
         - bearerAuth: []
       parameters:
@@ -1091,19 +1144,90 @@ paths:
                   $ref: "#/components/schemas/Tasks"
         '500':
           $ref: "#/components/responses/InternalError"
+    post:
+      summary: "Создать дашбоард"
+      tags:
+        - DashBoard
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRequest"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Request"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '409':
+          $ref: "#/components/responses/Conflict"
+        '500':
+          $ref: "#/components/responses/InternalError"
+  /dashboard/{id}:
+    patch:
+      tags:
+        - DashBoard
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      summary: "Обновить дашбоард"
+      operationId: updateDashboard
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/UpdateRequest"
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
+    delete:
+      summary: "Удалить"
+      tags:
+        - DashBoard
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalError"
 
-  /requests/{id}/orders:
-    $ref: '#/paths/~1orders~1{id}'
+#  /requests/{id}/orders:
+#    $ref: '#/paths/~1orders~1{id}'
+#
+#  /requests/{id}/tasks:
+#    $ref: '#/paths/~1tasks~1{id}'
+#
+#  /orders/{id}/tasks:
+#    $ref: '#/paths/~1tasks~1{id}'
 
-  /requests/{id}/tasks:
-    $ref: '#/paths/~1tasks~1{id}'
-
-  /orders/{id}/tasks:
-    $ref: '#/paths/~1tasks~1{id}'
-
-  /dashboard/tasks/my:
-    $ref: '#/paths/~1dashboard~1tasks'
-    description: "Список актуальных задач текущего пользователя"
+#  /dashboard/tasks/my:
+#    $ref: '#/paths/~1dashboard~1tasks'
+#    description: "Список актуальных задач текущего пользователя"
 
 # TODO реализовать запросы
 # TODO заполнить модели
