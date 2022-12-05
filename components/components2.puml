@@ -41,6 +41,12 @@ component "Requests service" as Request {
 'Request -down- Api
 p0 -down- [API]
 
+rectangle "WEB app" as WEB #FEFECE
+component [KeyCloak] as keyCloak #ADD1A2
+[API] -left- keyCloak
+[API] <.. WEB
+
+
 Orders -left- I_Orders
 Request -left-( I_Orders
 
@@ -54,7 +60,7 @@ Upload -up- I_Contract
 Contracts -up-( I_Contract
 
 Contracts -left- I_Clients
-Clients -right-( I_Clients
+Clients -up-( I_Clients
 
 Users -up- I_Users
 Request -down-( I_Users
