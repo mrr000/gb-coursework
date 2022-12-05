@@ -112,6 +112,10 @@
   <img src="../components/components2.png" width=100%>
 </details>
 
+<details><summary>Диаграмма классов</summary>
+  <img src="../classes/full.png">
+</details>
+
 
 #### Выбор СУБД
 
