@@ -1,0 +1,235 @@
+@startuml
+namespace aggregate {
+    class Client << (S,Aquamarine) >> {
+        - person *entity.Person
+        - products []*entity.Item
+        - transactions []valueobject.Transaction
+
+        + GetID() uuid.UUID
+        + SetID(id uuid.UUID)
+        + SetName(name string)
+        + GetName() string
+
+    }
+    class Order << (S,Aquamarine) >> {
+        - item *entity.Item
+        - price float64
+        - quantity int
+
+        + GetID() uuid.UUID
+        + GetItem() *entity.Item
+        + GetPrice() float64
+
+    }
+}
+
+'namespace entity {
+'    class Item << (S,Aquamarine) >> {
+'        + ID uuid.UUID
+'        + Name string
+'        + Description string
+'
+'    }
+'    class Person << (S,Aquamarine) >> {
+'        + ID uuid.UUID
+'        + Name string
+'        + Age int
+'
+'    }
+'}
+
+
+
+namespace client {
+    interface ClientRepository  {
+        + Get( uuid.UUID) (aggregate.Client, error)
+        + Add( aggregate.Client) error
+        + Update( aggregate.Client) error
+    }
+}
+
+namespace contract {
+    interface ContractRepository  {
+        + Get( uuid.UUID) (aggregate.Contract, error)
+        + Add( aggregate.Contract) error
+        + Update( aggregate.Contract) error
+    }
+}
+
+namespace task {
+    interface TaskRepository  {
+        + Get( uuid.UUID) (aggregate.Task, error)
+        + Add( aggregate.Task) error
+        + Update( aggregate.Task) error
+    }
+}
+
+'???
+namespace order {
+    interface OrderRepository  {
+        + Get( uuid.UUID) (aggregate.Order, error)
+        + Add( aggregate.Order) error
+        + Update( aggregate.Order) error
+    }
+}
+
+namespace request {
+    interface RequestRepository  {
+        + Get( uuid.UUID) (aggregate.Request, error)
+        + Add( aggregate.Request) error
+        + Update( aggregate.Request) error
+    }
+}
+
+
+
+
+namespace postgreSql {
+    class PostgreSqlClientRepository << (S,Aquamarine) >> {
+        - clients <font color=blue>map</font>[uuid.UUID]aggregate.Client
+
+        + GetAll() ([]aggregate.Client, error)
+        + GetByID(id uuid.UUID) (aggregate.Client, error)
+        + Add(c aggregate.Client) error
+        + Update(c aggregate.Client) error
+        + Delete(id uuid.UUID) error
+    }
+
+    class PostgreSqlOrderRepository << (S,Aquamarine) >> {
+        - orders <font color=blue>map</font>[uuid.UUID]aggregate.Order
+
+        + GetAll() ([]aggregate.Order, error)
+        + GetByID(id uuid.UUID) (aggregate.Order, error)
+        + Add(o aggregate.Order) error
+        + Update(o aggregate.Order) error
+        + Delete(id uuid.UUID) error
+    }
+
+    class PostgreSqlContractRepository << (S,Aquamarine) >> {
+        + GetByID(id uuid.UUID) (aggregate.Contract, error)
+        + Add(c aggregate.Contract) error
+        + Update(c aggregate.Contract) error
+        + Delete(id uuid.UUID) error
+    }
+
+    class PostgreSqlTaskRepository << (S,Aquamarine) >> {
+        - tasks <font color=blue>map</font>[uuid.UUID]aggregate.Task
+
+        + GetAll() ([]aggregate.Task, error)
+        + GetByID(id uuid.UUID) (aggregate.Task, error)
+        + Add(t aggregate.Task) error
+        + Update(t aggregate.Task) error
+        + Delete(id uuid.UUID) error
+    }
+
+    class PostgreSqlRequestRepository << (S,Aquamarine) >> {
+        - requests <font color=blue>map</font>[uuid.UUID]aggregate.Request
+
+        + GetAll() ([]aggregate.Request, error)
+        + GetByID(id uuid.UUID) (aggregate.Request, error)
+        + Add(t aggregate.Request) error
+        + Update(t aggregate.Request) error
+    }
+
+}
+
+"client.ClientRepository" <|-- "postgreSql.PostgreSqlClientRepository"
+"order.OrderRepository" <|-- "postgreSql.PostgreSqlOrderRepository"
+"contract.ContractRepository" <|-- "postgreSql.PostgreSqlContractRepository"
+"task.TaskRepository" <|-- "postgreSql.PostgreSqlTaskRepository"
+"request.RequestRepository" <|-- "postgreSql.PostgreSqlRequestRepository"
+
+'"customer.CustomerRepository" <|-- "memory.MemoryRepository"
+'
+'namespace postgreSql {
+'    class PostgreSqlRepository << (S,Aquamarine) >> {
+'        - db *postgreSql.Database
+'        - client *postgreSql.Collection
+'
+'        + Get(id uuid.UUID) (aggregate.Customer, error)
+'        + Add(c aggregate.Customer) error
+'        + Update(c aggregate.Customer) error
+'
+'    }
+'
+'    class mongoCustomer << (S,Aquamarine) >> {
+'        + ID uuid.UUID
+'        + Name string
+'
+'        + ToAggregate() aggregate.Customer
+'
+'    }
+'}
+'
+'"client.ClientRepository" <|-- "postgreSql.PostgreSqlRepository"
+'
+'namespace product {
+'    interface ProductRepository  {
+'        + GetAll() ([]aggregate.Product, error)
+'        + GetByID(id uuid.UUID) (aggregate.Product, error)
+'        + Add(product aggregate.Product) error
+'        + Update(product aggregate.Product) error
+'        + Delete(id uuid.UUID) error
+'
+'    }
+'}
+
+
+'namespace valueobject {
+'    class Transaction << (S,Aquamarine) >> {
+'        - amount int
+'        - from uuid.UUID
+'        - to uuid.UUID
+'        - createdAt time.Time
+'
+'    }
+'}
+
+
+
+namespace services {
+
+    class OrderService << (S,Aquamarine) >> {
+        - client client.ClientRepository
+        - task tasks.TasksRepository
+        - request task.requestRepository
+
+        + GetOrder(orderID uuid.UUID) (*apiv1.OrderResponse, error)
+        + CreateOrder(clientID uuid.UUID, requestID uuid.UUID, req *apiv1.CreateOrderRequest) (*apiv1.CreateOrderResponse, error)
+        + UpdateOrder(orderID uuid.UUID, req *apiv1.UpdateOrderRequest) (error)
+        + DeleteOrder(orderID uuid.UUID, req *apiv1.DeleteOrderRequest) (error)
+    }
+
+    class services.OrderConfiguration << (T, #FF7700) >>  {
+    }
+
+    class ClientService << (S,Aquamarine) >> {
+        - contract contract.ContractRepository
+
+        + GetClient(clientID uuid.UUID) (*apiv1.ClientResponse, error)
+        + CreateClient(clientID uuid.UUID, requestID uuid.UUID, req *apiv1.CreateClientRequest) (*apiv1.CreateClientResponse, error)
+        + UpdateClient(clientID uuid.UUID, req *apiv1.UpdateClientRequest) (error)
+        + DeleteClient(clientID uuid.UUID, req *apiv1.DeleteClientRequest) (error)
+    }
+
+    class services.OrderConfiguration << (T, #FF7700) >>  {
+    }
+
+'    class Tavern << (S,Aquamarine) >> {
+'        + OrderService *OrderService
+'        + BillingService <font color=blue>interface</font>{}
+'
+'        + Order(customer uuid.UUID, products []uuid.UUID) error
+'
+'    }
+'    class services.TavernConfiguration << (T, #FF7700) >>  {
+'    }
+}
+
+
+"services.<font color=blue>func</font>(*OrderService) error" #.. "services.OrderConfiguration"
+"services.<font color=blue>func</font>(*ClientService) error" #.. "services.ClientConfiguration"
+"services.<font color=blue>func</font>(*TaskService) error" #.. "services.TaskConfiguration"
+"services.<font color=blue>func</font>(*RequestService) error" #.. "services.RequestConfiguration"
+"services.<font color=blue>func</font>(*ContractService) error" #.. "services.ContractConfiguration"
+@enduml
