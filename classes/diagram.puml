@@ -1,42 +1,53 @@
 @startuml
 namespace aggregate {
     class Client << (S,Aquamarine) >> {
-        - person *entity.Person
-        - products []*entity.Item
-        - transactions []valueobject.Transaction
+        - profile *entity.ClientProfile
+        - contract *entity.Contract
+        - orders []*entity.Order
+'        - transactions []valueobject.Transaction
 
         + GetID() uuid.UUID
         + SetID(id uuid.UUID)
-        + SetName(name string)
-        + GetName() string
-
+        + SetUsername(name string)
+        + GetUsername() string
     }
+
     class Order << (S,Aquamarine) >> {
         - item *entity.Item
         - price float64
-        - quantity int
 
         + GetID() uuid.UUID
         + GetItem() *entity.Item
         + GetPrice() float64
-
     }
 }
 
-'namespace entity {
+namespace entity {
 '    class Item << (S,Aquamarine) >> {
 '        + ID uuid.UUID
 '        + Name string
 '        + Description string
-'
 '    }
-'    class Person << (S,Aquamarine) >> {
-'        + ID uuid.UUID
-'        + Name string
-'        + Age int
-'
-'    }
-'}
+
+    class ClientProfile << (S,Aquamarine) >> {
+        + ID uuid.UUID
+        + Username string
+        + Firstname string
+        + Lastname string
+        + Surname string
+        + Email string
+        + Phone string
+        + Name string
+    }
+
+    class Contract << (S,Aquamarine) >> {
+        + ID uuid.UUID
+        + Account string
+        + ValidFor timestamp
+        + Status int
+        + CreatedAt timestamp
+    }
+}
 
 
 
