@@ -107,7 +107,6 @@
 |  |  |  |  |  |  |  |
 
 #### Модель компонентов приложений
-(сюда компоненты, классы и т.д.)
 
 <details><summary>Диаграмма компонентов</summary>
   <img src="../components/components2.png" width=100%>
