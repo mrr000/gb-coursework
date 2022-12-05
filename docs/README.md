@@ -108,6 +108,11 @@
 |  |  |  |  |  |  |
 |  |  |  |  |  |  |
 
+<details>
+  <summary>ER Diagram</summary>
+  <img src="https://github.com/mrr000/gb-coursework/blob/7f9931ee7e4c1628a01efc47b7795f569c042c39/ERD/ER-%D0%B4%D0%B8%D0%B0%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B0%20-%20%D0%A0%D0%BE%D1%81%D1%82%D0%B5%D0%BB%D0%B5%D0%BA%D0%BE%D0%BC.png" height=100% width=100%><br/>
+</details>
+
 ### Архитектура приложения
 
 #### Концептуальная модель и интеграция
